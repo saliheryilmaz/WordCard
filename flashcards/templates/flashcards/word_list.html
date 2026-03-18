@@ -1,0 +1,192 @@
+{% extends 'flashcards/base.html' %}
+{% block title %}Kelimelerim — WordCard{% endblock %}
+
+{% block extra_css %}
+<style>
+  .list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+  }
+
+  .search-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .search-row input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    font-family: 'Sora', sans-serif;
+    font-size: 1rem;
+    outline: none;
+    min-height: 48px;
+  }
+  .search-row input:focus { border-color: var(--accent); }
+  .search-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 0 1rem;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.875rem;
+    cursor: pointer;
+    min-height: 48px;
+    white-space: nowrap;
+  }
+  .search-btn:active { background: var(--surface2); }
+
+  .filter-row {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+
+  .filter-chip {
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'Sora', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .filter-chip.active {
+    border-color: var(--accent);
+    color: var(--accent2);
+    background: rgba(108,99,255,0.1);
+  }
+
+  .word-cards { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .word-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    border-radius: 10px;
+    padding: 0.85rem 0.9rem;
+  }
+  .word-card.is-mastered  { border-left-color: var(--green); }
+  .word-card.not-mastered { border-left-color: var(--yellow); }
+
+  .word-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+  .word-card .eng {
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+  }
+  .word-card .tr {
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-top: 0.15rem;
+  }
+
+  .word-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.4rem;
+  }
+
+  .btn-xs {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.78rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: none;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .btn-xs:active { color: var(--text); border-color: var(--muted); }
+  .btn-xs.del:active { color: var(--red); border-color: var(--red); }
+
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+
+  .syn-row { display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.4rem; }
+  .syn-tag { font-size:0.72rem; padding:0.15rem 0.5rem; border-radius:12px; background:rgba(108,99,255,0.08); border:1px solid rgba(108,99,255,0.18); color:var(--accent2); font-family:'JetBrains Mono',monospace; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="list-header">
+  <h1>Kelimelerim <span class="text-muted" style="font-size: 0.85rem; font-weight: 400;">({{ words.count }})</span></h1>
+  <a href="{% url 'add_word' %}" class="btn btn-primary">+ Ekle</a>
+</div>
+
+<form method="get" class="search-row">
+  <input type="text" name="q" value="{{ query }}" placeholder="Kelime ara..." autocomplete="off">
+  {% if level_filter %}<input type="hidden" name="level" value="{{ level_filter }}">{% endif %}
+  <button type="submit" class="search-btn">Ara</button>
+</form>
+
+<div class="filter-row">
+  <a href="{% url 'word_list' %}{% if query %}?q={{ query }}{% endif %}"
+     class="filter-chip {% if not level_filter %}active{% endif %}">Tümü</a>
+  <a href="?level=not_mastered{% if query %}&q={{ query }}{% endif %}"
+     class="filter-chip {% if level_filter == 'not_mastered' or level_filter == 'learning' or level_filter == 'new' %}active{% endif %}">Öğrenilmedi</a>
+  <a href="?level=mastered{% if query %}&q={{ query }}{% endif %}"
+     class="filter-chip {% if level_filter == 'mastered' %}active{% endif %}">Öğrenildi</a>
+</div>
+
+{% if words %}
+<div class="word-cards">
+  {% for word in words %}
+  <div class="word-card {% if word.level == 'mastered' %}is-mastered{% else %}not-mastered{% endif %}">
+    <div class="word-card-top">
+      <div>
+        <div class="eng">{{ word.english }}</div>
+        <div class="tr">{{ word.turkish }}</div>
+        {% if word.synonyms %}
+        <div class="syn-row">
+          {% for s in word.synonym_list %}<span class="syn-tag">{{ s }}</span>{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      <span class="badge badge-{{ word.level }}">{{ word.get_level_display }}</span>
+    </div>
+    <div class="word-card-actions">
+      <a href="{% url 'edit_word' word.pk %}" class="btn-xs">Düzenle</a>
+      <form method="post" action="{% url 'delete_word' word.pk %}" style="display:inline;"
+            onsubmit="return confirm('Silmek istediğinden emin misin?')">
+        {% csrf_token %}
+        <button type="submit" class="btn-xs del">Sil</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+  <p>Kelime bulunamadı.</p>
+  <a href="{% url 'add_word' %}" class="btn btn-primary" style="margin-top: 1rem;">+ Kelime Ekle</a>
+</div>
+{% endif %}
+{% endblock %}

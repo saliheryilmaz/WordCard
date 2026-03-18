@@ -1,0 +1,23 @@
+{% extends 'flashcards/base.html' %}
+{% block title %}Tamamlandi - WordCard{% endblock %}
+{% block content %}
+<div style="text-align:center; padding:3rem 1rem;">
+  {% if all_mastered %}
+    <div style="font-size:4rem; margin-bottom:1rem;">✅</div>
+    <h1 style="margin-bottom:0.5rem;">Bu haftalik tamam!</h1>
+    <p class="text-muted" style="margin-bottom:2rem; font-size:0.9rem;">
+      Tum ogrenilen kelimeler bu hafta goruldu. Hafta icinde tekrar gel.
+    </p>
+  {% else %}
+    <div style="font-size:4rem; margin-bottom:1rem;">🎉</div>
+    <h1 style="margin-bottom:0.5rem;">Oturum tamamlandi!</h1>
+    <p class="text-muted" style="margin-bottom:2rem; font-size:0.9rem;">
+      Bilmediklerin bir kez daha soruldu. Yarin tekrar gel, daha da pekisir.
+    </p>
+  {% endif %}
+  <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+    <a href="{% url 'dashboard' %}" class="btn btn-ghost">Ana Sayfa</a>
+    <a href="{% url 'add_word' %}" class="btn btn-primary">+ Kelime Ekle</a>
+  </div>
+</div>
+{% endblock %}

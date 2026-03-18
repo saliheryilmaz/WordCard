@@ -1,0 +1,182 @@
+{% extends 'flashcards/base.html' %}
+{% block title %}Tekrar - WordCard{% endblock %}
+
+{% block extra_css %}
+<style>
+  .review-wrap { max-width: 520px; margin: 0 auto; }
+  .review-meta { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.6rem; }
+  .pill { background:var(--surface); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:20px; font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--muted); }
+  .round-badge { background:rgba(108,99,255,0.12); color:var(--accent2); padding:0.2rem 0.55rem; border-radius:20px; font-size:0.7rem; font-weight:600; }
+  .progress-wrap { background:var(--surface2); border-radius:100px; height:4px; margin-bottom:1rem; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:100px; transition:width 0.4s ease; }
+
+  .flash-card { width:100%; height:52vw; max-height:280px; min-height:180px; position:relative; margin-bottom:1rem; cursor:pointer; border-radius:var(--radius); }
+  .flash-face { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.25rem; text-align:center; border:1px solid var(--border); border-radius:var(--radius); transition:opacity 0.2s ease; }
+  .flash-front { background:var(--surface); opacity:1; pointer-events:auto; }
+  .flash-back  { background:var(--surface2); opacity:0; pointer-events:none; visibility:hidden; }
+  .flash-card.flipped .flash-front { opacity:0; pointer-events:none; visibility:hidden; }
+  .flash-card.flipped .flash-back  { opacity:1; pointer-events:auto; visibility:visible; }
+
+  .word-en { font-family:'JetBrains Mono',monospace; font-size:clamp(1.4rem,6vw,2rem); font-weight:500; color:var(--text); word-break:break-word; }
+  .hint { color:var(--muted); font-size:0.78rem; margin-top:0.6rem; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:0.35} 50%{opacity:0.85} }
+  .word-tr { font-size:clamp(1.1rem,5vw,1.5rem); font-weight:600; color:var(--accent2); margin-bottom:0.5rem; }
+  .word-example { font-size:0.82rem; color:var(--muted); font-style:italic; line-height:1.5; }
+  .word-notes { font-size:0.78rem; color:var(--blue); margin-top:0.35rem; }
+  .word-synonyms { display:flex; flex-wrap:wrap; gap:0.3rem; justify-content:center; margin-top:0.5rem; }
+  .syn-pill { font-size:0.72rem; padding:0.15rem 0.55rem; border-radius:12px; background:rgba(108,99,255,0.1); border:1px solid rgba(108,99,255,0.2); color:var(--accent2); font-family:'JetBrains Mono',monospace; }
+
+  .action-section { display:none; }
+  .action-section.visible { display:block; }
+  .action-btns { display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; }
+  .action-btn { padding:0.9rem 0.5rem; border-radius:12px; border:2px solid var(--border); background:var(--surface); font-family:'Sora',sans-serif; font-size:0.95rem; font-weight:600; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:0.3rem; min-height:80px; justify-content:center; }
+  .action-btn .em { font-size:1.6rem; }
+  .btn-wrong { border-color:rgba(248,113,113,0.3); background:rgba(248,113,113,0.06); color:var(--red); }
+  .btn-wrong:active { background:rgba(248,113,113,0.18); transform:scale(0.97); }
+  .btn-right { border-color:rgba(52,211,153,0.3); background:rgba(52,211,153,0.06); color:var(--green); }
+  .btn-right:active { background:rgba(52,211,153,0.18); transform:scale(0.97); }
+
+  .wrong-note { text-align:center; margin-top:0.6rem; font-size:0.75rem; color:var(--red); opacity:0.8; min-height:1.2em; }
+  .toast { position:fixed; bottom:1.25rem; left:50%; transform:translateX(-50%) translateY(80px); background:var(--surface2); border:1px solid var(--border); padding:0.6rem 1.1rem; border-radius:30px; font-size:0.875rem; transition:transform 0.25s ease; z-index:999; white-space:nowrap; pointer-events:none; }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="review-wrap">
+  <div class="review-meta">
+    <div style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">
+      <span class="badge badge-{{ word.level }}">{{ word.get_level_display }}</span>
+      {% if round_num > 1 %}<span class="round-badge">{{ round_num }}. tur</span>{% endif %}
+    </div>
+    <span class="pill" id="remaining-count">{{ remaining }} kaldi</span>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-fill" id="progress-fill" style="width:10%"></div>
+  </div>
+
+  <div class="flash-card" id="flashcard" onclick="flipCard()">
+    <div class="flash-face flash-front">
+      <div class="word-en" id="word-front">{{ word.english }}</div>
+      <div class="hint">Tikla, cevabi gor</div>
+    </div>
+    <div class="flash-face flash-back">
+      <div class="word-tr" id="word-back">{{ word.turkish }}</div>
+      <div class="word-example" id="word-example">{% if word.example_sentence %}"{{ word.example_sentence }}"{% endif %}</div>
+      {% if word.synonyms %}
+      <div class="word-synonyms" id="word-synonyms">
+        {% for s in word.synonym_list %}<span class="syn-pill">{{ s }}</span>{% endfor %}
+      </div>
+      {% else %}
+      <div class="word-synonyms" id="word-synonyms"></div>
+      {% endif %}
+      <div class="word-notes" id="word-notes">{% if word.notes %}{{ word.notes }}{% endif %}</div>
+    </div>
+  </div>
+
+  <div class="action-section" id="action-section">
+    <div class="action-btns">
+      <button class="action-btn btn-wrong" onclick="answer(false)">Bilmiyorum</button>
+      <button class="action-btn btn-right" onclick="answer(true)">Biliyorum</button>
+    </div>
+    <div class="wrong-note" id="wrong-note">
+      {% if wrong_count > 0 %}{{ wrong_count }} kelime tekrar sorulacak{% endif %}
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  var currentWordId = {{ word.pk }};
+  var isFlipped = false;
+  var isAnswering = false;
+
+  function flipCard() {
+    if (isAnswering) return;
+    document.getElementById('flashcard').classList.toggle('flipped');
+    isFlipped = !isFlipped;
+    if (isFlipped) {
+      document.getElementById('action-section').classList.add('visible');
+    }
+  }
+
+  function answer(known) {
+    if (isAnswering) return;
+    isAnswering = true;
+    showToast(known ? 'Biliyorum!' : 'Tekrar sorulacak');
+    fetch('/review/' + currentWordId + '/rate/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({ known: known })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      document.getElementById('remaining-count').textContent = data.remaining + ' kaldi';
+      document.getElementById('wrong-note').textContent =
+        data.wrong_count > 0 ? data.wrong_count + ' kelime tekrar sorulacak' : '';
+      if (data.next_word_id) {
+        setTimeout(function() { loadNext(data.next_word_id); }, 650);
+      } else {
+        setTimeout(function() { window.location.href = '/review/'; }, 850);
+      }
+    });
+  }
+
+  function loadNext(wordId) {
+    fetch('/review/' + wordId + '/data/')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      document.getElementById('flashcard').classList.remove('flipped');
+      document.getElementById('action-section').classList.remove('visible');
+      document.getElementById('word-front').textContent = data.english;
+      document.getElementById('word-back').textContent = data.turkish;
+      document.getElementById('word-example').textContent = data.example_sentence ? '"' + data.example_sentence + '"' : '';
+      document.getElementById('word-notes').textContent = data.notes || '';
+      // synonyms
+      var synEl = document.getElementById('word-synonyms');
+      synEl.innerHTML = '';
+      if (data.synonyms) {
+        data.synonyms.forEach(function(s) {
+          var sp = document.createElement('span');
+          sp.className = 'syn-pill';
+          sp.textContent = s;
+          synEl.appendChild(sp);
+        });
+      }
+      isFlipped = false;
+      isAnswering = false;
+      currentWordId = wordId;
+    });
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 1200);
+  }
+
+  function getCookie(name) {
+    var v = null;
+    document.cookie.split(';').forEach(function(c) {
+      var parts = c.trim().split('=');
+      if (parts[0] === name) v = decodeURIComponent(parts[1]);
+    });
+    return v;
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.code === 'Space') { e.preventDefault(); flipCard(); }
+    if (isFlipped && !isAnswering) {
+      if (e.key === '1' || e.key === 'ArrowLeft') answer(false);
+      if (e.key === '2' || e.key === 'ArrowRight') answer(true);
+    }
+  });
+</script>
+{% endblock %}

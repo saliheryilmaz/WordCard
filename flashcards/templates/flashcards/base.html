@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>{% block title %}WordCard{% endblock %}</title>
+  {% load static %}
+  <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #161920;
+      --surface2: #1e2230;
+      --border: #2a2f3f;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --accent: #6c63ff;
+      --accent2: #a78bfa;
+      --green: #34d399;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --blue: #60a5fa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    html { font-size: 16px; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV (mobile-first: hamburger default) ── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 52px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+
+    .nav-brand {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--accent2);
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .nav-brand span { color: var(--accent); }
+
+    /* Hamburger — default görünür */
+    .nav-toggle {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 8px;
+      background: none;
+      border: none;
+      border-radius: 8px;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--muted);
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    /* Dropdown menü — default gizli */
+    .nav-links {
+      display: none;
+      position: absolute;
+      top: 52px;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-direction: column;
+      padding: 0.5rem 0.75rem 0.75rem;
+      gap: 0.2rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .nav-links.open { display: flex; }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      transition: all 0.15s;
+      display: block;
+    }
+    .nav-links a:hover,
+    .nav-links a:active { color: var(--text); background: var(--surface2); }
+    .nav-links a.active { color: var(--accent2); background: rgba(108,99,255,0.12); }
+
+    .btn-review-nav {
+      background: var(--accent) !important;
+      color: #fff !important;
+      text-align: center;
+      margin-top: 0.25rem;
+    }
+    .btn-review-nav:hover { background: #5a52e0 !important; }
+
+    /* Desktop: nav linkleri yatay */
+    @media (min-width: 640px) {
+      .nav-toggle { display: none; }
+      .nav-links {
+        display: flex !important;
+        position: static;
+        flex-direction: row;
+        background: none;
+        border: none;
+        padding: 0;
+        gap: 0.2rem;
+        box-shadow: none;
+        align-items: center;
+      }
+      .nav-links a {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.8rem;
+      }
+      .btn-review-nav {
+        padding: 0.4rem 1rem !important;
+        border-radius: 8px !important;
+        margin-top: 0 !important;
+      }
+    }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 1rem 0.875rem 2rem;
+    }
+
+    @media (min-width: 640px) {
+      main { padding: 1.5rem 1.25rem 2rem; }
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem;
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.65rem 1.1rem;
+      border-radius: 8px;
+      font-family: 'Sora', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all 0.15s;
+      min-height: 44px;
+      white-space: nowrap;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:active { background: #5a52e0; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .btn-ghost:active { color: var(--text); border-color: var(--muted); }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-control {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+      font-family: 'Sora', sans-serif;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.15s;
+      min-height: 48px;
+    }
+    .form-control:focus { border-color: var(--accent); }
+    .form-control::placeholder { color: var(--muted); }
+
+    /* ── BADGE ── */
+    .badge {
+      display: inline-block;
+      padding: 0.18rem 0.55rem;
+      border-radius: 20px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .badge-new { background: rgba(96,165,250,0.15); color: var(--blue); }
+    .badge-learning { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .badge-review { background: rgba(108,99,255,0.15); color: var(--accent2); }
+    .badge-mastered { background: rgba(52,211,153,0.15); color: var(--green); }
+
+    /* ── MESSAGES ── */
+    .messages { list-style: none; margin-bottom: 1rem; }
+    .messages li {
+      padding: 0.7rem 0.9rem;
+      border-radius: 8px;
+      margin-bottom: 0.4rem;
+      font-size: 0.875rem;
+      background: rgba(52,211,153,0.1);
+      border: 1px solid rgba(52,211,153,0.2);
+      color: var(--green);
+    }
+
+    h1 { font-size: 1.3rem; font-weight: 600; }
+    h2 { font-size: 1.1rem; font-weight: 600; }
+    h3 { font-size: 0.95rem; font-weight: 600; }
+
+    .text-muted { color: var(--muted); }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<nav>
+  <a class="nav-brand" href="{% url 'dashboard' %}"><span>word</span>card</a>
+  <button class="nav-toggle" id="nav-toggle" aria-label="Menü" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-links" id="nav-links">
+    <a href="{% url 'dashboard' %}" {% if request.resolver_match.url_name == 'dashboard' %}class="active"{% endif %}>Ana Sayfa</a>
+    <a href="{% url 'word_list' %}" {% if request.resolver_match.url_name == 'word_list' %}class="active"{% endif %}>Kelimeler</a>
+    <a href="{% url 'add_word' %}" {% if request.resolver_match.url_name == 'add_word' %}class="active"{% endif %}>+ Ekle</a>
+    <a href="{% url 'ai_practice' %}" {% if request.resolver_match.url_name == 'ai_practice' %}class="active"{% endif %}>AI Pratik</a>
+    <a href="{% url 'review' %}" class="btn-review-nav">Tekrar Et</a>
+    <a href="{% url 'logout' %}">Çıkış</a>
+  </div>
+</nav>
+{% endif %}
+
+<main>
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+<script>
+  const toggle = document.getElementById('nav-toggle');
+  const navLinks = document.getElementById('nav-links');
+  if (toggle) {
+    toggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const open = navLinks.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open);
+    });
+    document.addEventListener('click', function(e) {
+      if (!navLinks.contains(e.target) && !toggle.contains(e.target)) {
+        navLinks.classList.remove('open');
+        toggle.setAttribute('aria-expanded', false);
+      }
+    });
+  }
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>
