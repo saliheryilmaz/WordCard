@@ -264,6 +264,7 @@
     <a href="{% url 'word_list' %}" {% if request.resolver_match.url_name == 'word_list' %}class="active"{% endif %}>Kelimeler</a>
     <a href="{% url 'add_word' %}" {% if request.resolver_match.url_name == 'add_word' %}class="active"{% endif %}>+ Ekle</a>
     <a href="{% url 'ai_practice' %}" {% if request.resolver_match.url_name == 'ai_practice' %}class="active"{% endif %}>AI Pratik</a>
+    <a href="{% url 'daily_practice' %}" {% if request.resolver_match.url_name == 'daily_practice' %}class="active"{% endif %}>Günlük Pratik</a>
     <a href="{% url 'review' %}" class="btn-review-nav">Tekrar Et</a>
     <a href="{% url 'logout' %}">Çıkış</a>
   </div>

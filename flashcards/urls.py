@@ -20,4 +20,8 @@ urlpatterns = [
     path('ai/check/', views.ai_check_sentence, name='ai_check_sentence'),
     path('ai/example/', views.ai_generate_example, name='ai_generate_example'),
     path('ai/synonyms/', views.ai_fetch_synonyms, name='ai_fetch_synonyms'),
+
+    path('daily/', views.daily_practice, name='daily_practice'),
+    path('daily/chat/', views.ai_chat_respond, name='ai_chat_respond'),
+    path('daily/writing/', views.ai_evaluate_writing, name='ai_evaluate_writing'),
 ]

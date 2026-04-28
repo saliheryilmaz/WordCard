@@ -104,5 +104,7 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-# Groq API — .env dosyasina koy veya environment variable olarak set et
+# Groq API — environment variable olarak set et
+# Windows: $env:GROQ_API_KEY="gsk_..."
+# Linux/Mac: export GROQ_API_KEY="gsk_..."
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')

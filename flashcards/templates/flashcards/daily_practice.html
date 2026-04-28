@@ -1,0 +1,611 @@
+
+{% extends 'flashcards/base.html' %}
+{% block title %}Gunluk Pratik - WordCard{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── LAYOUT ── */
+.dp-wrap { max-width: 680px; margin: 0 auto; }
+.dp-header { margin-bottom: 1.5rem; }
+.dp-header h1 { font-size: 1.2rem; margin-bottom: 0.2rem; }
+.topic-card {
+  background: linear-gradient(135deg, rgba(108,99,255,0.12), rgba(167,139,250,0.08));
+  border: 1px solid rgba(108,99,255,0.25);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.topic-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent2); font-weight: 600; margin-bottom: 0.35rem; }
+.topic-en { font-size: 1rem; font-weight: 600; color: var(--text); line-height: 1.5; }
+.topic-tr { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 0.4rem; margin-bottom: 1.25rem; }
+.tab-btn {
+  flex: 1; padding: 0.65rem; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--muted); font-family: 'Sora', sans-serif;
+  font-size: 0.875rem; font-weight: 600; cursor: pointer;
+  transition: all 0.15s; display: flex; align-items: center;
+  justify-content: center; gap: 0.4rem; min-height: 48px;
+}
+.tab-btn.active { border-color: var(--accent); background: rgba(108,99,255,0.1); color: var(--accent2); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── CHAT ── */
+.chat-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  height: 55vw; max-height: 360px; min-height: 220px;
+  overflow-y: auto; padding: 1rem;
+  display: flex; flex-direction: column; gap: 0.75rem;
+  scroll-behavior: smooth;
+  margin-bottom: 0.75rem;
+}
+.chat-box::-webkit-scrollbar { width: 4px; }
+.chat-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.msg { display: flex; gap: 0.5rem; align-items: flex-end; max-width: 88%; }
+.msg.user { align-self: flex-end; flex-direction: row-reverse; }
+.msg.ai   { align-self: flex-start; }
+
+.msg-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; flex-shrink: 0;
+}
+.msg.user .msg-avatar { background: rgba(108,99,255,0.2); color: var(--accent2); }
+.msg.ai   .msg-avatar { background: rgba(52,211,153,0.15); color: var(--green); }
+
+.msg-bubble {
+  padding: 0.6rem 0.85rem;
+  border-radius: 14px;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  word-break: break-word;
+}
+.msg.user .msg-bubble { background: rgba(108,99,255,0.15); border-bottom-right-radius: 4px; color: var(--text); }
+.msg.ai   .msg-bubble { background: var(--surface2); border-bottom-left-radius: 4px; color: var(--text); }
+
+.correction-note {
+  margin-top: 0.4rem;
+  padding: 0.4rem 0.65rem;
+  background: rgba(251,191,36,0.08);
+  border: 1px solid rgba(251,191,36,0.2);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: var(--yellow);
+  line-height: 1.5;
+}
+
+.chat-input-row {
+  display: flex; gap: 0.5rem; align-items: flex-end;
+}
+.chat-textarea {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.9rem;
+  resize: none;
+  outline: none;
+  min-height: 48px;
+  max-height: 120px;
+  overflow-y: auto;
+  transition: border-color 0.15s;
+  line-height: 1.5;
+}
+.chat-textarea:focus { border-color: var(--accent); }
+
+.icon-btn {
+  width: 48px; height: 48px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--muted); cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0; transition: all 0.15s;
+}
+.icon-btn:hover { border-color: var(--accent); color: var(--accent2); }
+.icon-btn.send { background: var(--accent); border-color: var(--accent); color: #fff; }
+.icon-btn.send:hover { background: #5a52e0; }
+.icon-btn.recording { background: rgba(248,113,113,0.15); border-color: var(--red); color: var(--red); animation: pulse-red 1s infinite; }
+@keyframes pulse-red { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+.tts-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.78rem; color: var(--muted); }
+.toggle-switch { position: relative; width: 36px; height: 20px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0; background: var(--border);
+  border-radius: 20px; cursor: pointer; transition: 0.2s;
+}
+.toggle-slider:before {
+  content: ''; position: absolute;
+  width: 14px; height: 14px; left: 3px; bottom: 3px;
+  background: white; border-radius: 50%; transition: 0.2s;
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--accent); }
+.toggle-switch input:checked + .toggle-slider:before { transform: translateX(16px); }
+
+.chat-empty { text-align: center; color: var(--muted); font-size: 0.85rem; margin: auto; padding: 1rem; }
+
+/* ── WRITING ── */
+.writing-area {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.95rem;
+  color: var(--text);
+  resize: vertical;
+  min-height: 160px;
+  outline: none;
+  line-height: 1.7;
+  transition: border-color 0.15s;
+  margin-bottom: 0.75rem;
+}
+.writing-area:focus { border-color: var(--accent); }
+.writing-area::placeholder { color: var(--muted); }
+.word-count { font-size: 0.75rem; color: var(--muted); text-align: right; margin-top: -0.5rem; margin-bottom: 0.75rem; }
+
+/* ── WRITING RESULT ── */
+.result-wrap { margin-top: 1.5rem; display: none; animation: slideUp 0.3s ease; }
+.result-wrap.visible { display: block; }
+@keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+.scores-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
+@media(min-width:480px){ .scores-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.score-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+}
+.score-box .s-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--muted); margin-bottom: 0.3rem; }
+.score-box .s-val { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 700; }
+.s-hi { color: var(--green); } .s-mid { color: var(--yellow); } .s-lo { color: var(--red); }
+
+.result-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; margin-bottom: 0.75rem; }
+.r-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); font-weight: 600; margin-bottom: 0.6rem; }
+.r-text { font-size: 0.875rem; line-height: 1.6; }
+
+.improvement-item { padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+.improvement-item:last-child { border-bottom: none; }
+.imp-original { font-size: 0.82rem; color: var(--red); text-decoration: line-through; font-family: 'JetBrains Mono', monospace; }
+.imp-corrected { font-size: 0.82rem; color: var(--green); font-family: 'JetBrains Mono', monospace; }
+.imp-exp { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+
+.better-block {
+  background: var(--surface2);
+  border-left: 3px solid var(--accent);
+  padding: 0.85rem 1rem;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.strength-tag {
+  display: inline-block;
+  background: rgba(52,211,153,0.1);
+  border: 1px solid rgba(52,211,153,0.2);
+  color: var(--green);
+  border-radius: 20px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.78rem;
+  margin: 0.2rem 0.2rem 0 0;
+}
+
+.encouragement-box {
+  background: rgba(108,99,255,0.07);
+  border: 1px solid rgba(108,99,255,0.18);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  font-size: 0.875rem;
+  color: var(--accent2);
+  text-align: center;
+}
+
+.spinner-inline { display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:0.4rem; }
+@keyframes spin { to{transform:rotate(360deg)} }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dp-wrap">
+
+  <div class="dp-header">
+    <h1>Gunluk Pratik</h1>
+    
+  </div>
+
+  <div class="topic-card">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:0.5rem;">
+      <div class="topic-label">Bugunun Konusu</div>
+      <button onclick="changeTopic()" id="change-topic-btn"
+        style="background:transparent; border:1px solid rgba(108,99,255,0.3); color:var(--accent2); border-radius:6px; padding:0.2rem 0.6rem; font-size:0.72rem; cursor:pointer; font-family:'Sora',sans-serif; white-space:nowrap; flex-shrink:0;">
+        Konuyu Degistir
+      </button>
+    </div>
+    <div class="topic-en" id="topic-en-display">{{ topic.en }}</div>
+    <div class="topic-tr" id="topic-tr-display">{{ topic.tr }}</div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('speaking')" id="tab-speaking">
+      Speaking
+    </button>
+    <button class="tab-btn" onclick="switchTab('writing')" id="tab-writing">
+      Writing
+    </button>
+  </div>
+
+  <!-- ── SPEAKING TAB ── -->
+  <div class="tab-panel active" id="panel-speaking">
+
+    <div class="tts-row">
+      <label class="toggle-switch">
+        <input type="checkbox" id="tts-toggle" checked>
+        <span class="toggle-slider"></span>
+      </label>
+      <span>AI sesli okusun</span>
+    </div>
+
+    <div class="chat-box" id="chat-box">
+      <div class="chat-empty" id="chat-empty">
+        Konusmaya baslamak icin bir mesaj yaz veya mikrofona bas.
+      </div>
+    </div>
+
+    <div class="chat-input-row">
+      <button class="icon-btn" id="mic-btn" title="Mikrofon" onclick="toggleMic()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </button>
+      <textarea class="chat-textarea" id="chat-input" placeholder="Ingilizce yaz..." rows="1"
+        onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="icon-btn send" onclick="sendChat()" id="send-btn" title="Gonder">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── WRITING TAB ── -->
+  <div class="tab-panel" id="panel-writing">
+    <textarea class="writing-area" id="writing-input"
+      placeholder="Write at least a paragraph about today's topic in English..."
+      oninput="updateWordCount()"></textarea>
+    <div class="word-count" id="word-count">0 kelime</div>
+
+    <button class="btn btn-primary" style="width:100%;" id="eval-btn" onclick="evaluateWriting()">
+      Gonder ve Degerlendir
+    </button>
+
+    <div class="result-wrap" id="writing-result"></div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── TOPIC ──────────────────────────────────────────────────────────────────
+var TOPIC_EN = "{{ topic.en|escapejs }}";
+
+var ALL_TOPICS = [
+  {% for t in all_topics %}{"en": "{{ t.en|escapejs }}", "tr": "{{ t.tr|escapejs }}"}{% if not forloop.last %},{% endif %}
+  {% endfor %}
+];
+var currentTopicIndex = ALL_TOPICS.findIndex(function(t){ return t.en === TOPIC_EN; });
+if (currentTopicIndex === -1) currentTopicIndex = 0;
+
+function changeTopic() {
+  currentTopicIndex = (currentTopicIndex + 1) % ALL_TOPICS.length;
+  var t = ALL_TOPICS[currentTopicIndex];
+  TOPIC_EN = t.en;
+  document.getElementById('topic-en-display').textContent = t.en;
+  document.getElementById('topic-tr-display').textContent = t.tr;
+  // Sohbet gecmisini sifirla
+  var chatBox = document.getElementById('chat-box');
+  chatBox.innerHTML = '<div class="chat-empty" id="chat-empty">Konusmaya baslamak icin bir mesaj yaz veya mikrofona bas.</div>';
+  // Writing alanini temizle
+  document.getElementById('writing-input').value = '';
+  document.getElementById('word-count').textContent = '0 kelime';
+  document.getElementById('writing-result').classList.remove('visible');
+}
+
+// ── TABS ───────────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ── UTILS ──────────────────────────────────────────────────────────────────
+function getCookie(name) {
+  var v = null;
+  document.cookie.split(';').forEach(function(c) {
+    var p = c.trim().split('=');
+    if (p[0] === name) v = decodeURIComponent(p[1]);
+  });
+  return v;
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function scoreClass(n) {
+  return n >= 8 ? 's-hi' : n >= 5 ? 's-mid' : 's-lo';
+}
+
+// ── CHAT ───────────────────────────────────────────────────────────────────
+var chatBox   = document.getElementById('chat-box');
+var chatInput = document.getElementById('chat-input');
+var sendBtn   = document.getElementById('send-btn');
+var chatEmpty = document.getElementById('chat-empty');
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+}
+
+function appendMsg(role, text) {
+  if (chatEmpty) { chatEmpty.style.display = 'none'; }
+
+  // Split correction from main reply
+  var mainText = text;
+  var correctionText = '';
+  var corrIdx = text.indexOf('CORRECTION:');
+  if (corrIdx !== -1) {
+    mainText = text.substring(0, corrIdx).trim();
+    correctionText = text.substring(corrIdx + 11).trim();
+  }
+
+  var div = document.createElement('div');
+  div.className = 'msg ' + role;
+
+  var avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.textContent = role === 'user' ? 'Sen' : 'AI';
+
+  var inner = document.createElement('div');
+
+  var bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.textContent = mainText;
+  inner.appendChild(bubble);
+
+  if (correctionText) {
+    var note = document.createElement('div');
+    note.className = 'correction-note';
+    note.textContent = 'Duzeltme: ' + correctionText;
+    inner.appendChild(note);
+  }
+
+  div.appendChild(avatar);
+  div.appendChild(inner);
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  // TTS
+  if (role === 'ai' && document.getElementById('tts-toggle').checked) {
+    speak(mainText);
+  }
+}
+
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  var utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-AU';
+  utt.rate = 0.92;
+  window.speechSynthesis.speak(utt);
+}
+
+async function sendChat() {
+  var msg = chatInput.value.trim();
+  if (!msg) return;
+  appendMsg('user', msg);
+  chatInput.value = '';
+  chatInput.style.height = 'auto';
+  sendBtn.disabled = true;
+
+  // Typing indicator
+  var typing = document.createElement('div');
+  typing.className = 'msg ai';
+  typing.id = 'typing';
+  typing.innerHTML = '<div class="msg-avatar">AI</div><div class="msg-bubble" style="color:var(--muted)">...</div>';
+  chatBox.appendChild(typing);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  try {
+    var resp = await fetch('/daily/chat/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+      body: JSON.stringify({ message: msg, topic: TOPIC_EN })
+    });
+    var data = await resp.json();
+    var t = document.getElementById('typing');
+    if (t) t.remove();
+    if (data.success) {
+      appendMsg('ai', data.reply);
+    } else {
+      appendMsg('ai', 'Hata: ' + data.error);
+    }
+  } catch(e) {
+    var t = document.getElementById('typing');
+    if (t) t.remove();
+    appendMsg('ai', 'Baglanti hatasi: ' + e.message);
+  } finally {
+    sendBtn.disabled = false;
+    chatInput.focus();
+  }
+}
+
+// ── SPEECH-TO-TEXT ─────────────────────────────────────────────────────────
+var recognition = null;
+var isRecording = false;
+var micBtn = document.getElementById('mic-btn');
+
+function toggleMic() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Tarayiciniz mikrofonu desteklemiyor. Chrome veya Edge kullanin.');
+    return;
+  }
+  if (isRecording) {
+    recognition.stop();
+    return;
+  }
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = function() {
+    isRecording = true;
+    micBtn.classList.add('recording');
+  };
+  recognition.onresult = function(e) {
+    var transcript = e.results[0][0].transcript;
+    chatInput.value = transcript;
+    autoResize(chatInput);
+  };
+  recognition.onend = function() {
+    isRecording = false;
+    micBtn.classList.remove('recording');
+    // Auto-send if something was captured
+    if (chatInput.value.trim()) sendChat();
+  };
+  recognition.onerror = function(e) {
+    isRecording = false;
+    micBtn.classList.remove('recording');
+    if (e.error !== 'no-speech') alert('Mikrofon hatasi: ' + e.error);
+  };
+  recognition.start();
+}
+
+// ── WRITING ────────────────────────────────────────────────────────────────
+function updateWordCount() {
+  var text = document.getElementById('writing-input').value.trim();
+  var count = text ? text.split(/\s+/).length : 0;
+  document.getElementById('word-count').textContent = count + ' kelime';
+}
+
+async function evaluateWriting() {
+  var text = document.getElementById('writing-input').value.trim();
+  if (text.length < 20) { alert('Lutfen daha uzun bir metin yaz.'); return; }
+
+  var btn = document.getElementById('eval-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-inline"></span>Degerlendirilyor...';
+
+  var resultWrap = document.getElementById('writing-result');
+  resultWrap.classList.remove('visible');
+
+  try {
+    var resp = await fetch('/daily/writing/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+      body: JSON.stringify({ text: text, topic: TOPIC_EN })
+    });
+    var data = await resp.json();
+    if (!data.success) { alert('Hata: ' + data.error); return; }
+    renderWritingResult(data.result);
+  } catch(e) {
+    alert('Baglanti hatasi: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Gonder ve Degerlendir';
+  }
+}
+
+function renderWritingResult(r) {
+  var wrap = document.getElementById('writing-result');
+
+  // Scores
+  var scoresHtml = '<div class="scores-grid">'
+    + scoreBox('Genel', r.overall_score)
+    + scoreBox('Gramer', r.grammar_score)
+    + scoreBox('Kelime', r.vocabulary_score)
+    + scoreBox('Akicilik', r.fluency_score)
+    + '</div>';
+
+  // Summary
+  var summaryHtml = '<div class="result-section"><div class="r-label">Ozet</div><div class="r-text">' + esc(r.summary) + '</div></div>';
+
+  // Strengths
+  var strengthsHtml = '';
+  if (r.strengths && r.strengths.length) {
+    strengthsHtml = '<div class="result-section"><div class="r-label">Guclu Yonler</div>';
+    r.strengths.forEach(function(s){ strengthsHtml += '<span class="strength-tag">' + esc(s) + '</span>'; });
+    strengthsHtml += '</div>';
+  }
+
+  // Improvements
+  var impHtml = '';
+  if (r.improvements && r.improvements.length) {
+    impHtml = '<div class="result-section"><div class="r-label">Duzeltmeler</div>';
+    r.improvements.forEach(function(i){
+      impHtml += '<div class="improvement-item">'
+        + '<div class="imp-original">' + esc(i.original) + '</div>'
+        + '<div class="imp-corrected">→ ' + esc(i.corrected) + '</div>'
+        + '<div class="imp-exp">' + esc(i.explanation) + '</div>'
+        + '</div>';
+    });
+    impHtml += '</div>';
+  }
+
+  // Better version
+  var betterHtml = '';
+  if (r.better_version) {
+    betterHtml = '<div class="result-section"><div class="r-label">Daha Iyi Versiyon</div>'
+      + '<div class="better-block">' + esc(r.better_version) + '</div></div>';
+  }
+
+  // Vocabulary
+  var vocabHtml = '';
+  if (r.vocabulary_suggestions && r.vocabulary_suggestions.length) {
+    vocabHtml = '<div class="result-section"><div class="r-label">Kelime Onerileri</div>';
+    r.vocabulary_suggestions.forEach(function(v){
+      vocabHtml += '<div style="margin-bottom:0.5rem;">'
+        + '<span style="font-family:JetBrains Mono,monospace;font-size:0.82rem;color:var(--muted);">' + esc(v.word) + '</span>'
+        + ' → <span style="color:var(--accent2);font-size:0.82rem;">' + v.alternatives.map(esc).join(', ') + '</span>'
+        + '<div style="font-size:0.75rem;color:var(--muted);margin-top:0.15rem;">' + esc(v.tip) + '</div>'
+        + '</div>';
+    });
+    vocabHtml += '</div>';
+  }
+
+  // Encouragement
+  var encHtml = r.encouragement
+    ? '<div class="encouragement-box">' + esc(r.encouragement) + '</div>'
+    : '';
+
+  wrap.innerHTML = scoresHtml + summaryHtml + strengthsHtml + impHtml + betterHtml + vocabHtml + encHtml;
+  wrap.classList.add('visible');
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function scoreBox(label, val) {
+  return '<div class="score-box"><div class="s-label">' + label + '</div>'
+    + '<div class="s-val ' + scoreClass(val) + '">' + val + '/10</div></div>';
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+{% endblock %}
