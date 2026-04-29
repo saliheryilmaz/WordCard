@@ -8,3 +8,6 @@ AI Sentence Practice — After reviewing a word, you can generate contextual exa
 Flashcard System — Clean card-based UI for focused vocabulary sessions.
 Progress Tracking — See which words you're mastering and which need more work.
 Persistent Storage — All words and review history saved to a MySQL database.
+
+📄 License
+This project is open source and available under the MIT License.
