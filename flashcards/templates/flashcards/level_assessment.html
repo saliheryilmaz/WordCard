@@ -1,0 +1,310 @@
+{% extends 'flashcards/base.html' %}
+{% block title %}Seviye Testi - WordCard{% endblock %}
+
+{% block extra_css %}
+<style>
+.level-wrap { max-width: 760px; margin: 0 auto; }
+.level-header { margin-bottom: 1.2rem; }
+.level-header h1 { margin-bottom: 0.3rem; }
+.prompt-grid { display: grid; grid-template-columns: 1fr; gap: 0.55rem; margin-bottom: 1rem; }
+@media (min-width: 640px) { .prompt-grid { grid-template-columns: repeat(3, 1fr); } }
+.prompt-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.85rem;
+  cursor: pointer;
+  min-height: 116px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.prompt-card:hover, .prompt-card.active {
+  border-color: var(--accent);
+  background: rgba(108,99,255,0.08);
+}
+.prompt-title { color: var(--accent2); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.45rem; }
+.prompt-text { color: var(--text); font-size: 0.82rem; line-height: 1.55; }
+.writing-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+.writing-area {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Sora', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  min-height: 230px;
+  resize: vertical;
+  outline: none;
+  padding: 1rem;
+}
+.writing-area:focus { border-color: var(--accent); }
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.7rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.result-wrap { display: none; margin-top: 1.25rem; animation: slideUp 0.25s ease; }
+.result-wrap.visible { display: block; }
+@keyframes slideUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.level-result {
+  background: linear-gradient(135deg, rgba(108,99,255,0.14), rgba(52,211,153,0.08));
+  border: 1px solid rgba(108,99,255,0.28);
+  border-radius: var(--radius);
+  padding: 1.1rem;
+  margin-bottom: 0.8rem;
+}
+.level-main { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.level-badge {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.confidence { color: var(--muted); font-size: 0.8rem; margin-top: 0.25rem; }
+.scores-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin: 0.8rem 0; }
+@media(min-width:540px){ .scores-grid { grid-template-columns: repeat(5, 1fr); } }
+.score-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.7rem 0.45rem;
+  text-align: center;
+}
+.score-label { color: var(--muted); font-size: 0.64rem; text-transform: uppercase; margin-bottom: 0.25rem; }
+.score-val { font-family: 'JetBrains Mono', monospace; font-size: 1.15rem; font-weight: 700; }
+.s-hi { color: var(--green); } .s-mid { color: var(--yellow); } .s-lo { color: var(--red); }
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+.section-label { color: var(--muted); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.55rem; }
+.section-text { font-size: 0.88rem; line-height: 1.65; }
+.pill-list { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.pill {
+  background: rgba(108,99,255,0.1);
+  border: 1px solid rgba(108,99,255,0.2);
+  color: var(--accent2);
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.78rem;
+}
+.bullet-list { list-style: none; display: grid; gap: 0.45rem; }
+.bullet-list li { color: var(--text); font-size: 0.86rem; line-height: 1.55; }
+.bullet-list li:before { content: '- '; color: var(--accent2); }
+.better-block {
+  background: var(--surface2);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 0.85rem 1rem;
+  line-height: 1.75;
+  font-size: 0.88rem;
+}
+.spinner-inline {
+  display:inline-block; width:14px; height:14px;
+  border:2px solid rgba(255,255,255,0.3); border-top-color:#fff;
+  border-radius:50%; animation:spin 0.7s linear infinite;
+  vertical-align:middle; margin-right:0.4rem;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="level-wrap">
+  <div class="level-header">
+    <h1>AI Seviye Testi</h1>
+    <p class="text-muted">A1-B2 arasi writing seviyeni analiz eder ve sonraki adimlari verir.</p>
+  </div>
+
+  <div class="prompt-grid">
+    {% for prompt in prompts %}
+    <button class="prompt-card{% if forloop.first %} active{% endif %}" type="button"
+      onclick="selectPrompt(this, '{{ prompt.text|escapejs }}')">
+      <div class="prompt-title">{{ prompt.title }}</div>
+      <div class="prompt-text">{{ prompt.text }}</div>
+    </button>
+    {% endfor %}
+  </div>
+
+  <div class="writing-panel">
+    <div class="form-group">
+      <label>Writing task</label>
+      <div class="form-control" id="selected-prompt" style="height:auto; min-height:0;">{{ prompts.0.text }}</div>
+    </div>
+
+    <textarea class="writing-area" id="level-text"
+      placeholder="Write your answer in English. Try to write 80-150 words for a better assessment."
+      oninput="updateWordCount()"></textarea>
+
+    <div class="meta-row">
+      <span id="word-count">0 kelime</span>
+      <button class="btn btn-primary" id="analyze-btn" onclick="analyzeLevel()">Seviyemi Analiz Et</button>
+    </div>
+  </div>
+
+  <div class="result-wrap" id="level-result"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var currentPrompt = "{{ prompts.0.text|escapejs }}";
+
+function getCookie(name) {
+  var value = null;
+  document.cookie.split(';').forEach(function(cookie) {
+    var parts = cookie.trim().split('=');
+    if (parts[0] === name) value = decodeURIComponent(parts[1]);
+  });
+  return value;
+}
+
+function selectPrompt(card, text) {
+  document.querySelectorAll('.prompt-card').forEach(function(item) { item.classList.remove('active'); });
+  card.classList.add('active');
+  currentPrompt = text;
+  document.getElementById('selected-prompt').textContent = text;
+}
+
+function updateWordCount() {
+  var text = document.getElementById('level-text').value.trim();
+  var count = text ? text.split(/\s+/).length : 0;
+  document.getElementById('word-count').textContent = count + ' kelime';
+}
+
+async function analyzeLevel() {
+  var text = document.getElementById('level-text').value.trim();
+  var count = text ? text.split(/\s+/).length : 0;
+  if (count < 25) {
+    alert('Daha dogru sonuc icin en az 25 kelime yaz.');
+    return;
+  }
+
+  var btn = document.getElementById('analyze-btn');
+  var wrap = document.getElementById('level-result');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-inline"></span>Analiz ediliyor...';
+  wrap.classList.remove('visible');
+
+  try {
+    var resp = await fetch('/level-test/analyze/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+      body: JSON.stringify({ text: text, prompt: currentPrompt })
+    });
+    var data = await resp.json();
+    if (!data.success) {
+      alert('Hata: ' + data.error);
+      return;
+    }
+    renderResult(data.result);
+  } catch (error) {
+    alert('Baglanti hatasi: ' + error.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Seviyemi Analiz Et';
+  }
+}
+
+function renderResult(r) {
+  var wrap = document.getElementById('level-result');
+  var html = ''
+    + '<div class="level-result">'
+    + '<div class="level-main">'
+    + '<div><div class="section-label">Tahmini CEFR Seviyesi</div>'
+    + '<h2>' + esc(levelTitle(r.level)) + '</h2>'
+    + '<div class="confidence">Guven: %' + esc(r.confidence) + '</div></div>'
+    + '<div class="level-badge">' + esc(r.level) + '</div>'
+    + '</div></div>'
+    + '<div class="scores-grid">'
+    + scoreBox('Genel', r.overall_score)
+    + scoreBox('Gramer', r.grammar_score)
+    + scoreBox('Kelime', r.vocabulary_score)
+    + scoreBox('Tutarlilik', r.coherence_score)
+    + scoreBox('Akicilik', r.fluency_score)
+    + '</div>'
+    + sectionText('Ozet', r.summary_tr)
+    + listSection('Kanitlar', r.evidence)
+    + listSection('Sonraki Hedefler', r.next_level_goals)
+    + pillSection('Odak Konular', r.priority_topics)
+    + betterSection('Duzeltilmis Ornek', r.corrected_sample)
+    + sectionText('7 Gunluk Plan', r.study_plan_tr);
+
+  wrap.innerHTML = html;
+  wrap.classList.add('visible');
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function levelTitle(level) {
+  var titles = {
+    A1: 'Beginner - temel cumleler',
+    A2: 'Elementary - gunluk anlatim',
+    B1: 'Intermediate - fikirlerini anlatabiliyor',
+    B2: 'Upper-intermediate - akici ve detayli'
+  };
+  return (titles[level] || 'Seviye tespit edildi');
+}
+
+function scoreBox(label, value) {
+  return '<div class="score-box"><div class="score-label">' + label + '</div>'
+    + '<div class="score-val ' + scoreClass(value) + '">' + esc(value) + '/10</div></div>';
+}
+
+function scoreClass(value) {
+  value = Number(value || 0);
+  return value >= 8 ? 's-hi' : value >= 5 ? 's-mid' : 's-lo';
+}
+
+function sectionText(label, text) {
+  if (!text) return '';
+  return '<div class="section"><div class="section-label">' + label + '</div>'
+    + '<div class="section-text">' + esc(text) + '</div></div>';
+}
+
+function listSection(label, items) {
+  if (!items || !items.length) return '';
+  var html = '<div class="section"><div class="section-label">' + label + '</div><ul class="bullet-list">';
+  items.forEach(function(item) { html += '<li>' + esc(item) + '</li>'; });
+  return html + '</ul></div>';
+}
+
+function pillSection(label, items) {
+  if (!items || !items.length) return '';
+  var html = '<div class="section"><div class="section-label">' + label + '</div><div class="pill-list">';
+  items.forEach(function(item) { html += '<span class="pill">' + esc(item) + '</span>'; });
+  return html + '</div></div>';
+}
+
+function betterSection(label, text) {
+  if (!text) return '';
+  return '<div class="section"><div class="section-label">' + label + '</div>'
+    + '<div class="better-block">' + esc(text) + '</div></div>';
+}
+
+function esc(value) {
+  if (value === null || value === undefined) return '';
+  return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+{% endblock %}

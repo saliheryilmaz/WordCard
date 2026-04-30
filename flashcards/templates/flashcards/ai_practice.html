@@ -1,0 +1,547 @@
+{% extends 'flashcards/base.html' %}
+{% block title %}AI Cümle Pratiği — WordCard{% endblock %}
+
+{% block extra_css %}
+<style>
+  .ai-wrap { max-width: 720px; margin: 0 auto; }
+
+  /* WORD SELECTOR */
+  .word-selector {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+
+  .word-selector select {
+    flex: 1;
+    min-width: 200px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 0.65rem 0.9rem;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .word-selector select:focus { border-color: var(--accent); }
+
+  /* SELECTED WORD DISPLAY */
+  .word-display {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: none;
+  }
+
+  .word-display.visible { display: block; }
+
+  .word-display .en {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--accent2);
+  }
+
+  .word-display .tr {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 0.2rem;
+  }
+
+  .word-display .ai-examples-btn {
+    margin-top: 0.75rem;
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--muted);
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    transition: all 0.15s;
+  }
+
+  .word-display .ai-examples-btn:hover { border-color: var(--accent); color: var(--accent2); }
+
+  /* TEXTAREA */
+  .sentence-area {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    font-family: 'Sora', sans-serif;
+    font-size: 1rem;
+    color: var(--text);
+    resize: vertical;
+    min-height: 100px;
+    outline: none;
+    transition: border-color 0.15s;
+    line-height: 1.6;
+  }
+
+  .sentence-area:focus { border-color: var(--accent); }
+  .sentence-area::placeholder { color: var(--muted); }
+
+  .check-btn {
+    width: 100%;
+    margin-top: 0.75rem;
+    padding: 0.85rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Sora', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .check-btn:hover:not(:disabled) { background: #5a52e0; }
+  .check-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* RESULT */
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    display: none;
+    animation: slideUp 0.3s ease;
+  }
+
+  .result-card.visible { display: block; }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .score-circle {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .score-hi { background: rgba(52,211,153,0.15); color: var(--green); border: 2px solid rgba(52,211,153,0.3); }
+  .score-mid { background: rgba(251,191,36,0.15); color: var(--yellow); border: 2px solid rgba(251,191,36,0.3); }
+  .score-lo { background: rgba(248,113,113,0.15); color: var(--red); border: 2px solid rgba(248,113,113,0.3); }
+
+  .verdict { font-size: 1.1rem; font-weight: 600; }
+  .verdict.ok { color: var(--green); }
+  .verdict.bad { color: var(--red); }
+
+  .result-section { margin-bottom: 1rem; }
+  .result-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+  }
+
+  .result-text { font-size: 0.9rem; line-height: 1.6; }
+
+  .better-version {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    padding: 0.75rem 1rem;
+    border-radius: 0 8px 8px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--accent2);
+  }
+
+  .tip-box {
+    background: rgba(96,165,250,0.06);
+    border: 1px solid rgba(96,165,250,0.15);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: var(--blue);
+    margin-top: 1rem;
+  }
+
+  .save-row {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  /* AI EXAMPLES PANEL */
+  .examples-panel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-top: 0.75rem;
+    display: none;
+  }
+
+  .examples-panel.visible { display: block; }
+
+  .example-item {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(42,47,63,0.5);
+    cursor: pointer;
+    transition: color 0.1s;
+  }
+
+  .example-item:last-child { border-bottom: none; }
+  .example-item:hover .ex-sentence { color: var(--accent2); }
+
+  .ex-sentence { font-size: 0.875rem; font-style: italic; }
+  .ex-meta { display: flex; gap: 0.5rem; margin-top: 0.2rem; }
+  .ex-ctx { font-size: 0.75rem; color: var(--muted); }
+
+  .diff-badge {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .diff-easy { background: rgba(52,211,153,0.15); color: var(--green); }
+  .diff-medium { background: rgba(251,191,36,0.15); color: var(--yellow); }
+  .diff-hard { background: rgba(248,113,113,0.15); color: var(--red); }
+
+  /* HISTORY */
+  .history-list { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem; }
+
+  .history-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .history-item .hw { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--accent2); margin-bottom: 0.2rem; }
+  .history-item .hs { font-size: 0.875rem; color: var(--muted); }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ai-wrap">
+
+  <div style="margin-bottom: 2rem;">
+    <h1 style="margin-bottom: 0.25rem;">🤖 AI Cümle Pratiği</h1>
+    <p class="text-muted" style="font-size: 0.875rem;">
+      Kelimeyi cümle içinde kullan, AI gramer + doğallık kontrolü yapsın.
+    </p>
+  </div>
+
+  <!-- WORD SELECT -->
+  <div class="word-selector">
+    <div style="flex: 1;">
+      <label style="display: block; font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem;">Kelime Seç</label>
+      <select id="word-select" onchange="onWordSelect()">
+        <option value="">— Listeden seç —</option>
+        {% for w in words %}
+        <option value="{{ w.pk }}" data-en="{{ w.english }}" data-tr="{{ w.turkish }}">
+          {{ w.english }} — {{ w.turkish }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div style="flex: 1;">
+      <label style="display: block; font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem;">Veya Manuel Yaz</label>
+      <input type="text" id="word-manual" placeholder="herhangi bir kelime..."
+        style="width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:10px; padding:0.65rem 0.9rem; font-family:Sora,sans-serif; font-size:0.9rem; outline:none;"
+        oninput="onManualInput()"
+        onfocus="this.style.borderColor='var(--accent)'"
+        onblur="this.style.borderColor='var(--border)'">
+    </div>
+  </div>
+
+  <!-- WORD DISPLAY -->
+  <div class="word-display" id="word-display">
+    <div class="en" id="disp-en"></div>
+    <div class="tr" id="disp-tr"></div>
+    <button class="ai-examples-btn" onclick="generateExamples()">
+      ✦ AI örnek cümleler üret
+    </button>
+    <div class="examples-panel" id="examples-panel">
+      <div id="examples-inner" style="color: var(--muted); font-size: 0.85rem;">Yükleniyor...</div>
+    </div>
+  </div>
+
+  <!-- SENTENCE INPUT -->
+  <div>
+    <label style="display: block; font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">
+      Cümleni Yaz
+    </label>
+    <textarea
+      id="sentence-input"
+      class="sentence-area"
+      placeholder="Write a sentence using this word..."
+    ></textarea>
+    <button class="check-btn" id="check-btn" onclick="checkSentence()">
+      <div class="spinner" id="spinner"></div>
+      <span id="btn-text">✦ AI ile Kontrol Et</span>
+    </button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-card" id="result-card">
+    <div class="score-row">
+      <div class="score-circle" id="score-circle"></div>
+      <div>
+        <div class="verdict" id="verdict"></div>
+        <div class="result-text" id="grammar-fb" style="color: var(--muted); font-size: 0.85rem; margin-top: 0.2rem;"></div>
+      </div>
+    </div>
+
+    <div class="result-section">
+      <div class="result-label">Doğallık</div>
+      <div class="result-text" id="natural-fb"></div>
+    </div>
+
+    <div class="result-section" id="better-section">
+      <div class="result-label">Daha iyi versiyon</div>
+      <div class="better-version" id="better-ver"></div>
+    </div>
+
+    <div class="result-section">
+      <div class="result-label">Açıklama</div>
+      <div class="result-text" id="explanation"></div>
+    </div>
+
+    <div class="tip-box" id="tip-box"></div>
+
+    <div class="save-row" id="save-row" style="display: none;">
+      <span style="color: var(--green);">✓ Cümle kelime kartına kaydedildi</span>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="history-section" style="margin-top: 2.5rem; display: none;">
+    <h3 style="font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem;">Bu Oturumdaki Cümleler</h3>
+    <div class="history-list" id="history-list"></div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  let currentWord = { en: '', tr: '' };
+  let sessionHistory = [];
+
+  function getCookie(name) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+      const [k, val] = c.trim().split('=');
+      if (k === name) v = decodeURIComponent(val);
+    });
+    return v;
+  }
+
+  function onWordSelect() {
+    const sel = document.getElementById('word-select');
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt.value) return;
+    document.getElementById('word-manual').value = '';
+    currentWord = { en: opt.dataset.en, tr: opt.dataset.tr };
+    showWordDisplay();
+  }
+
+  function onManualInput() {
+    const val = document.getElementById('word-manual').value.trim();
+    document.getElementById('word-select').value = '';
+    if (val) {
+      currentWord = { en: val, tr: '' };
+      document.getElementById('disp-en').textContent = val;
+      document.getElementById('disp-tr').textContent = '';
+      document.getElementById('word-display').classList.add('visible');
+    }
+  }
+
+  function showWordDisplay() {
+    document.getElementById('disp-en').textContent = currentWord.en;
+    document.getElementById('disp-tr').textContent = currentWord.tr ? '→ ' + currentWord.tr : '';
+    document.getElementById('word-display').classList.add('visible');
+    document.getElementById('examples-panel').classList.remove('visible');
+    document.getElementById('result-card').classList.remove('visible');
+  }
+
+  async function generateExamples() {
+    if (!currentWord.en) return;
+    const panel = document.getElementById('examples-panel');
+    const inner = document.getElementById('examples-inner');
+    panel.classList.add('visible');
+    inner.innerHTML = '<span style="color:var(--muted)">Üretiliyor...</span>';
+
+    const resp = await fetch('/ai/example/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+      body: JSON.stringify({ word: currentWord.en, turkish: currentWord.tr })
+    });
+    const data = await resp.json();
+
+    if (!data.success) {
+      inner.innerHTML = `<span style="color:var(--red)">${data.error}</span>`;
+      return;
+    }
+
+    inner.innerHTML = data.result.sentences.map(s => `
+      <div class="example-item" onclick="useExample('${s.sentence.replace(/'/g,"\\'")}')">
+        <div class="ex-sentence">"${s.sentence}"</div>
+        <div class="ex-meta">
+          <span class="diff-badge diff-${s.difficulty}">${s.difficulty}</span>
+          <span class="ex-ctx">${s.context}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function useExample(sentence) {
+    document.getElementById('sentence-input').value = sentence;
+  }
+
+  async function checkSentence() {
+    const sentence = document.getElementById('sentence-input').value.trim();
+    if (!sentence) { alert('Önce bir cümle yaz!'); return; }
+    if (!currentWord.en) { alert('Önce bir kelime seç!'); return; }
+
+    // Loading state
+    const btn = document.getElementById('check-btn');
+    btn.disabled = true;
+    document.getElementById('spinner').style.display = 'block';
+    document.getElementById('btn-text').textContent = 'Kontrol ediliyor...';
+    document.getElementById('result-card').classList.remove('visible');
+
+    try {
+      const resp = await fetch('/ai/check/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+        body: JSON.stringify({
+          word: currentWord.en,
+          sentence: sentence,
+          save_to_word: true
+        })
+      });
+
+      const data = await resp.json();
+
+      if (!data.success) {
+        alert('Hata: ' + data.error);
+        return;
+      }
+
+      renderResult(data.result, sentence);
+      addToHistory(currentWord.en, sentence, data.result.score);
+
+    } catch (e) {
+      alert('Bağlantı hatası: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      document.getElementById('spinner').style.display = 'none';
+      document.getElementById('btn-text').textContent = '✦ AI ile Kontrol Et';
+    }
+  }
+
+  function renderResult(r, sentence) {
+    const card = document.getElementById('result-card');
+    const score = r.score || 0;
+
+    // Score circle
+    const circle = document.getElementById('score-circle');
+    circle.textContent = score + '/10';
+    circle.className = 'score-circle ' + (score >= 8 ? 'score-hi' : score >= 5 ? 'score-mid' : 'score-lo');
+
+    // Verdict
+    const verdict = document.getElementById('verdict');
+    verdict.textContent = r.is_correct ? '✓ Doğru kullanım' : '✗ Düzeltme gerekiyor';
+    verdict.className = 'verdict ' + (r.is_correct ? 'ok' : 'bad');
+
+    document.getElementById('grammar-fb').textContent = r.grammar_feedback || '';
+    document.getElementById('natural-fb').textContent = r.naturalness_feedback || '';
+    document.getElementById('explanation').textContent = r.explanation || '';
+    document.getElementById('tip-box').textContent = '💡 ' + (r.extra_tip || '');
+
+    // Better version
+    const betterSec = document.getElementById('better-section');
+    const betterVer = document.getElementById('better-ver');
+    if (r.better_version && r.better_version !== sentence) {
+      betterVer.textContent = r.better_version;
+      betterSec.style.display = 'block';
+    } else {
+      betterSec.style.display = 'none';
+    }
+
+    // Save row
+    document.getElementById('save-row').style.display = r.is_correct ? 'flex' : 'none';
+
+    card.classList.add('visible');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function addToHistory(word, sentence, score) {
+    sessionHistory.unshift({ word, sentence, score });
+    const section = document.getElementById('history-section');
+    const list = document.getElementById('history-list');
+    section.style.display = 'block';
+    list.innerHTML = sessionHistory.map(h => `
+      <div class="history-item">
+        <div>
+          <div class="hw">${h.word}</div>
+          <div class="hs">${h.sentence}</div>
+        </div>
+        <div class="score-circle ${h.score >= 8 ? 'score-hi' : h.score >= 5 ? 'score-mid' : 'score-lo'}"
+             style="width:40px;height:40px;font-size:0.85rem;flex-shrink:0;">
+          ${h.score}/10
+        </div>
+      </div>
+    `).join('');
+  }
+</script>
+{% endblock %}

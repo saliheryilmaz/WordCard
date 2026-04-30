@@ -1,0 +1,202 @@
+{% extends 'flashcards/base.html' %}
+{% block title %}{% if edit %}Duzenle{% else %}Kelime Ekle{% endif %} - WordCard{% endblock %}
+
+{% block extra_css %}
+<style>
+  .back-link { display:inline-flex; align-items:center; color:var(--muted); font-size:0.85rem; text-decoration:none; margin-bottom:0.75rem; min-height:36px; }
+  .back-link:active { color:var(--text); }
+  .form-actions { display:flex; flex-direction:column; gap:0.6rem; margin-top:1.25rem; }
+  .form-actions .btn { width:100%; justify-content:center; }
+  @media (min-width:480px) { .form-actions { flex-direction:row; flex-wrap:wrap; } .form-actions .btn { width:auto; } }
+
+  /* Synonym panel */
+  .syn-panel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    margin-top: 0.5rem;
+    display: none;
+    animation: fadeIn 0.2s ease;
+  }
+  .syn-panel.visible { display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
+
+  .syn-chips { display:flex; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.5rem; }
+  .syn-chip {
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.12s;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .syn-chip:hover, .syn-chip.selected { border-color:var(--accent); background:rgba(108,99,255,0.12); color:var(--accent2); }
+  .syn-chip.antonym { border-color:rgba(248,113,113,0.3); color:var(--red); background:rgba(248,113,113,0.06); }
+  .syn-chip.antonym:hover { background:rgba(248,113,113,0.15); }
+
+  .syn-meta { display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-bottom:0.4rem; }
+  .register-badge { font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:4px; font-weight:600; background:rgba(96,165,250,0.12); color:var(--blue); border:1px solid rgba(96,165,250,0.2); }
+  .syn-tip { font-size:0.78rem; color:var(--muted); line-height:1.5; }
+  .syn-label { font-size:0.68rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); font-weight:600; margin-bottom:0.3rem; }
+  .syn-loading { color:var(--muted); font-size:0.82rem; }
+
+  .auto-badge {
+    display:inline-flex; align-items:center; gap:0.3rem;
+    font-size:0.68rem; color:var(--muted); margin-left:0.5rem;
+    opacity:0; transition:opacity 0.2s;
+  }
+  .auto-badge.show { opacity:1; }
+  .dot-spin { width:6px; height:6px; border-radius:50%; border:1.5px solid var(--muted); border-top-color:var(--accent); animation:spin 0.7s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'word_list' %}" class="back-link">← Listeye don</a>
+<h1 style="margin-bottom:1rem;">{% if edit %}Kelimeyi Duzenle{% else %}Yeni Kelime{% endif %}</h1>
+
+<div class="card">
+  <form method="post" id="word-form">
+    {% csrf_token %}
+
+    {% for field in form %}
+    <div class="form-group">
+      <label>
+        {{ field.label }}
+        {% if field.html_name == 'english' %}
+          <span class="auto-badge" id="loading-badge"><div class="dot-spin"></div> es anlamlilar aranıyor</span>
+        {% endif %}
+      </label>
+      {{ field }}
+      {% if field.errors %}
+        <div style="color:var(--red);font-size:0.8rem;margin-top:0.3rem;">{{ field.errors.0 }}</div>
+      {% endif %}
+
+      {% if field.html_name == 'english' %}
+      <!-- Synonym panel — ingilizce altin hemen altinda -->
+      <div class="syn-panel" id="syn-panel">
+        <div id="syn-inner"><span class="syn-loading">Yukleniyor...</span></div>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">{% if edit %}Kaydet{% else %}Ekle{% endif %}</button>
+      {% if not edit %}
+      <button type="submit" name="add_another" value="1" class="btn btn-ghost">Ekle + Bir tane daha</button>
+      {% endif %}
+      <a href="{% url 'word_list' %}" class="btn btn-ghost">Iptal</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  var synTimer = null;
+  var lastFetched = '';
+
+  var engInput  = document.getElementById('id_english');
+  var synInput  = document.getElementById('id_synonyms');
+  var synPanel  = document.getElementById('syn-panel');
+  var synInner  = document.getElementById('syn-inner');
+  var loadBadge = document.getElementById('loading-badge');
+
+  if (engInput) {
+    engInput.addEventListener('input', function() {
+      clearTimeout(synTimer);
+      var val = engInput.value.trim();
+      if (val.length < 2) { synPanel.classList.remove('visible'); return; }
+      synTimer = setTimeout(function() { fetchSynonyms(val); }, 700);
+    });
+
+    // Duzenleme modunda sayfa acilinca mevcut kelime icin goster
+    if (engInput.value.trim().length > 1) {
+      fetchSynonyms(engInput.value.trim());
+    }
+  }
+
+  function fetchSynonyms(word) {
+    if (word === lastFetched) return;
+    lastFetched = word;
+    loadBadge.classList.add('show');
+    synPanel.classList.add('visible');
+    synInner.innerHTML = '<span class="syn-loading">Yukleniyor...</span>';
+
+    fetch('/ai/synonyms/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+      body: JSON.stringify({ word: word })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      loadBadge.classList.remove('show');
+      if (!data.success) { synInner.innerHTML = '<span style="color:var(--muted);font-size:0.8rem;">Bulunamadi.</span>'; return; }
+      renderSynPanel(data.result);
+    })
+    .catch(function() {
+      loadBadge.classList.remove('show');
+      synInner.innerHTML = '<span style="color:var(--red);font-size:0.8rem;">Hata olustu.</span>';
+    });
+  }
+
+  function renderSynPanel(r) {
+    var html = '';
+
+    if (r.synonyms && r.synonyms.length) {
+      html += '<div class="syn-label">Es Anlamlilar <span style="color:var(--muted);font-weight:400;">(tikla ekle)</span></div>';
+      html += '<div class="syn-chips" id="syn-chips">';
+      r.synonyms.forEach(function(s) {
+        html += '<span class="syn-chip" onclick="addSynonym(this,\'' + escQ(s) + '\')">' + escH(s) + '</span>';
+      });
+      html += '</div>';
+    }
+
+    if (r.antonyms && r.antonyms.length) {
+      html += '<div class="syn-label" style="margin-top:0.5rem;">Zit Anlamlilar</div>';
+      html += '<div class="syn-chips">';
+      r.antonyms.forEach(function(s) {
+        html += '<span class="syn-chip antonym">' + escH(s) + '</span>';
+      });
+      html += '</div>';
+    }
+
+    if (r.register) {
+      html += '<div class="syn-meta" style="margin-top:0.5rem;"><span class="register-badge">' + escH(r.register) + '</span></div>';
+    }
+
+    if (r.tip) {
+      html += '<div class="syn-tip">' + escH(r.tip) + '</div>';
+    }
+
+    synInner.innerHTML = html;
+  }
+
+  function addSynonym(el, word) {
+    var cur = synInput.value.trim();
+    var parts = cur ? cur.split(',').map(function(s){ return s.trim(); }) : [];
+    if (parts.indexOf(word) === -1) {
+      parts.push(word);
+      synInput.value = parts.join(', ');
+    }
+    el.classList.toggle('selected');
+  }
+
+  function escH(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function escQ(s) { return s.replace(/'/g,"\\'"); }
+
+  function getCookie(name) {
+    var v = null;
+    document.cookie.split(';').forEach(function(c) {
+      var p = c.trim().split('=');
+      if (p[0] === name) v = decodeURIComponent(p[1]);
+    });
+    return v;
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,27 @@
+      <!-- review.html içinde flashcard-back div'ini bununla değiştir -->
+
+      <div class="flashcard-face flashcard-back">
+        <div class="translation" id="word-back">{{ word.turkish }}</div>
+
+        <!-- EŞ ANLAMLILАР -->
+        {% if word.synonym_list %}
+        <div class="syn-row" id="syn-row">
+          {% for s in word.synonym_list %}
+          <span class="syn-pill">{{ s }}</span>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="syn-row" id="syn-row" style="display:none"></div>
+        {% endif %}
+
+        {% if word.example_sentence %}
+        <div class="example" id="word-example">"{{ word.example_sentence }}"</div>
+        {% else %}
+        <div class="example" id="word-example"></div>
+        {% endif %}
+        {% if word.notes %}
+        <div class="notes-text" id="word-notes">📝 {{ word.notes }}</div>
+        {% else %}
+        <div class="notes-text" id="word-notes"></div>
+        {% endif %}
+      </div>
