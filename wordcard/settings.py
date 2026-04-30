@@ -4,11 +4,14 @@ PythonAnywhere deployment ready.
 """
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # GÜVENLIK: Deploy ederken .env veya environment variable kullan
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-degistir-bunu-uretim-ortaminda')
+SECRET_KEY = os.environ.get('SECRET_KEY',)
 
 # PythonAnywhere'de False yap ve ALLOWED_HOSTS'a ekle
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'

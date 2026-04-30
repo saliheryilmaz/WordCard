@@ -393,46 +393,46 @@ Respond ONLY in this JSON format:
 # ── DAILY PRACTICE ──────────────────────────────────────────────────────────
 
 DAILY_TOPICS = [
-    {"en": "Describe your dream travel destination and why you want to go there.", "tr": "Hayalindeki seyahat destinasyonu"},
-    {"en": "Talk about a movie or TV show that changed your perspective on life.", "tr": "Hayatına bakışını değiştiren bir film/dizi"},
-    {"en": "What are the advantages and disadvantages of social media?", "tr": "Sosyal medyanın artıları ve eksileri"},
-    {"en": "Describe a challenge you overcame and what you learned from it.", "tr": "Üstesinden geldiğin bir zorluk"},
-    {"en": "If you could live in any era in history, which would you choose and why?", "tr": "Hangi tarihi dönemde yaşamak isterdin"},
-    {"en": "What does your ideal day look like from morning to night?", "tr": "İdeal bir günün nasıl geçer"},
-    {"en": "Talk about a book that influenced you and what made it special.", "tr": "Seni etkileyen bir kitap"},
-    {"en": "What technology do you think will change the world in the next 10 years?", "tr": "Dünyayı değiştirecek teknoloji"},
-    {"en": "Describe your favourite food and how it is prepared.", "tr": "En sevdiğin yemek ve yapılışı"},
-    {"en": "What are the pros and cons of living in a big city vs. a small town?", "tr": "Büyük şehir mi, küçük kasaba mı"},
-    {"en": "Talk about someone who has been a mentor or role model in your life.", "tr": "Hayatındaki bir mentor/rol model"},
-    {"en": "If you could have any superpower, what would it be and how would you use it?", "tr": "Süper güç olsaydı"},
-    {"en": "Describe a tradition or celebration that is important to you or your culture.", "tr": "Önemli bir gelenek ya da kutlama"},
-    {"en": "What habits do you think are essential for a healthy and happy life?", "tr": "Sağlıklı ve mutlu bir yaşam için alışkanlıklar"},
-    {"en": "Talk about your favourite hobby and how it started.", "tr": "En sevdiğin hobi ve nasıl başladı"},
-    {"en": "If you could meet any historical figure, who would it be and what would you ask?", "tr": "Hangi tarihi kişiyle tanışmak isterdin"},
-    {"en": "What do you think is the most important quality in a true friend?", "tr": "Gerçek bir arkadaşın en önemli özelliği"},
-    {"en": "Talk about a skill you would love to master and why.", "tr": "Ustalaşmak istediğin bir beceri"},
-    {"en": "Describe the place where you grew up and how it shaped who you are.", "tr": "Büyüdüğün yer ve seni nasıl şekillendirdi"},
-    {"en": "What are your thoughts on climate change and what can individuals do about it?", "tr": "İklim değişikliği ve bireysel çözümler"},
-    {"en": "Talk about your career goals and the steps you are taking to achieve them.", "tr": "Kariyer hedeflerin ve attığın adımlar"},
-    {"en": "If you won the lottery, how would you spend the money?", "tr": "Piyangoda büyük ikramiye kazansaydın"},
-    {"en": "What do you think makes a great leader? Give an example.", "tr": "Büyük bir lideri ne yapar"},
-    {"en": "Describe a moment when you felt truly proud of yourself.", "tr": "Kendinden gerçekten gurur duyduğun an"},
-    {"en": "Talk about the impact of artificial intelligence on everyday life.", "tr": "Yapay zekanın günlük hayata etkisi"},
-    {"en": "What is your favourite season and what do you like to do during that time?", "tr": "En sevdiğin mevsim ve aktiviteler"},
-    {"en": "If you could learn any language instantly, which would you choose and why?", "tr": "Anında öğrenebileceğin bir dil olsaydı"},
-    {"en": "Talk about a time you had to make a difficult decision.", "tr": "Zor bir karar vermek zorunda kaldığın an"},
-    {"en": "What are the most important things you have learned from your parents?", "tr": "Ebeveynlerinden öğrendiğin en önemli şeyler"},
-    {"en": "Describe your perfect home — where it would be and what it would look like.", "tr": "Hayalindeki ev"},
-    {"en": "What role does music play in your life?", "tr": "Müziğin hayatındaki yeri"},
-    {"en": "Talk about a time you helped someone and how it made you feel.", "tr": "Birine yardım ettiğin ve nasıl hissettirdiği"},
-    {"en": "If you could change one thing about the world, what would it be?", "tr": "Dünyada bir şeyi değiştirebilseydin"},
-    {"en": "Describe a goal you are currently working towards.", "tr": "Şu an üzerinde çalıştığın bir hedef"},
-    {"en": "What does success mean to you personally?", "tr": "Başarı senin için ne anlama gelir"},
-    {"en": "Talk about a sport or physical activity you enjoy.", "tr": "Keyif aldığın bir spor veya fiziksel aktivite"},
-    {"en": "If you could redesign your country's education system, what would you change?", "tr": "Eğitim sistemini yeniden tasarlasaydın"},
-    {"en": "Describe a place you have visited that left a strong impression on you.", "tr": "Seni derinden etkileyen bir yer"},
-    {"en": "What are the benefits and risks of working from home?", "tr": "Evden çalışmanın avantaj ve dezavantajları"},
-    {"en": "Talk about how technology has changed the way people communicate.", "tr": "Teknoloji iletişimi nasıl değiştirdi"},
+    {"en": "Describe your dream travel destination and why you want to go there.", "tr": "Hayalindeki seyahat destinasyonunu ve oraya neden gitmek istediğini anlat."},
+    {"en": "Talk about a movie or TV show that changed your perspective on life.", "tr": "Hayata bakış açını değiştiren bir film veya dizi hakkında konuş."},
+    {"en": "What are the advantages and disadvantages of social media?", "tr": "Sosyal medyanın avantajları ve dezavantajları nelerdir?"},
+    {"en": "Describe a challenge you overcame and what you learned from it.", "tr": "Üstesinden geldiğin bir zorluğu ve bu süreçte öğrendiklerini anlat."},
+    {"en": "If you could live in any era in history, which would you choose and why?", "tr": "Tarihin herhangi bir döneminde yaşayabilseydin hangisini seçerdin ve neden?"},
+    {"en": "What does your ideal day look like from morning to night?", "tr": "Sabahtan geceye ideal bir günün nasıl geçer?"},
+    {"en": "Talk about a book that influenced you and what made it special.", "tr": "Seni etkileyen bir kitap hakkında konuş ve onu özel kılan şeyi anlat."},
+    {"en": "What technology do you think will change the world in the next 10 years?", "tr": "Önümüzdeki 10 yılda dünyayı değiştireceğini düşündüğün teknolojiyi anlat."},
+    {"en": "Describe your favourite food and how it is prepared.", "tr": "En sevdiğin yemeği ve nasıl hazırlandığını anlat."},
+    {"en": "What are the pros and cons of living in a big city vs. a small town?", "tr": "Büyük bir şehirde mi yoksa küçük bir kasabada mı yaşamak daha iyi? Artıları ve eksileri neler?"},
+    {"en": "Talk about someone who has been a mentor or role model in your life.", "tr": "Hayatında sana rehberlik eden veya rol model olan birini anlat."},
+    {"en": "If you could have any superpower, what would it be and how would you use it?", "tr": "Herhangi bir süper gücün olsaydı ne olurdu ve onu nasıl kullanırdın?"},
+    {"en": "Describe a tradition or celebration that is important to you or your culture.", "tr": "Senin veya kültürün için önemli olan bir gelenek ya da kutlamayı anlat."},
+    {"en": "What habits do you think are essential for a healthy and happy life?", "tr": "Sağlıklı ve mutlu bir yaşam için hangi alışkanlıkların gerekli olduğunu düşünüyorsun?"},
+    {"en": "Talk about your favourite hobby and how it started.", "tr": "En sevdiğin hobini ve nasıl başladığını anlat."},
+    {"en": "If you could meet any historical figure, who would it be and what would you ask?", "tr": "Herhangi bir tarihi kişiyle tanışabilseydin kim olurdu ve ona ne sorardın?"},
+    {"en": "What do you think is the most important quality in a true friend?", "tr": "Gerçek bir arkadaşın en önemli özelliğinin ne olduğunu düşünüyorsun?"},
+    {"en": "Talk about a skill you would love to master and why.", "tr": "Ustalaşmak istediğin bir beceriyi ve nedenini anlat."},
+    {"en": "Describe the place where you grew up and how it shaped who you are.", "tr": "Büyüdüğün yeri ve seni nasıl şekillendirdiğini anlat."},
+    {"en": "What are your thoughts on climate change and what can individuals do about it?", "tr": "İklim değişikliği hakkında ne düşünüyorsun ve bireyler bu konuda ne yapabilir?"},
+    {"en": "Talk about your career goals and the steps you are taking to achieve them.", "tr": "Kariyer hedeflerini ve bunlara ulaşmak için attığın adımları anlat."},
+    {"en": "If you won the lottery, how would you spend the money?", "tr": "Piyangoda büyük ikramiye kazansaydın parayı nasıl harcardın?"},
+    {"en": "What do you think makes a great leader? Give an example.", "tr": "Sence büyük bir lideri ne yapar? Bir örnek ver."},
+    {"en": "Describe a moment when you felt truly proud of yourself.", "tr": "Kendinden gerçekten gurur duyduğun bir anı anlat."},
+    {"en": "Talk about the impact of artificial intelligence on everyday life.", "tr": "Yapay zekanın günlük hayata etkisini anlat."},
+    {"en": "What is your favourite season and what do you like to do during that time?", "tr": "En sevdiğin mevsim hangisi ve o dönemde neler yapmayı seversin?"},
+    {"en": "If you could learn any language instantly, which would you choose and why?", "tr": "Anında herhangi bir dili öğrenebilseydin hangisini seçerdin ve neden?"},
+    {"en": "Talk about a time you had to make a difficult decision.", "tr": "Zor bir karar vermek zorunda kaldığın bir zamanı anlat."},
+    {"en": "What are the most important things you have learned from your parents?", "tr": "Ebeveynlerinden öğrendiğin en önemli şeyler nelerdir?"},
+    {"en": "Describe your perfect home — where it would be and what it would look like.", "tr": "Hayalindeki evi anlat — nerede olurdu ve nasıl görünürdü?"},
+    {"en": "What role does music play in your life?", "tr": "Müziğin hayatındaki yeri nedir?"},
+    {"en": "Talk about a time you helped someone and how it made you feel.", "tr": "Birine yardım ettiğin bir zamanı ve sana nasıl hissettirdiğini anlat."},
+    {"en": "If you could change one thing about the world, what would it be?", "tr": "Dünyada bir şeyi değiştirebilseydin ne olurdu?"},
+    {"en": "Describe a goal you are currently working towards.", "tr": "Şu an üzerinde çalıştığın bir hedefi anlat."},
+    {"en": "What does success mean to you personally?", "tr": "Başarı senin için kişisel olarak ne anlama gelir?"},
+    {"en": "Talk about a sport or physical activity you enjoy.", "tr": "Keyif aldığın bir spor veya fiziksel aktiviteyi anlat."},
+    {"en": "If you could redesign your country's education system, what would you change?", "tr": "Ülkenin eğitim sistemini yeniden tasarlayabilseydin neyi değiştirirdin?"},
+    {"en": "Describe a place you have visited that left a strong impression on you.", "tr": "Ziyaret ettiğin ve seni derinden etkileyen bir yeri anlat."},
+    {"en": "What are the benefits and risks of working from home?", "tr": "Evden çalışmanın faydaları ve riskleri nelerdir?"},
+    {"en": "Talk about how technology has changed the way people communicate.", "tr": "Teknolojinin insanların iletişim kurma biçimini nasıl değiştirdiğini anlat."},
 ]
 
 
@@ -625,161 +625,6 @@ Student text:
         allowed_levels = {'A1', 'A2', 'B1', 'B2'}
         if result.get('level') not in allowed_levels:
             result['level'] = 'B2'
-        return JsonResponse({'success': True, 'result': result})
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'AI yaniti parse edilemedi.', 'raw': raw}, status=500)
-    except requests.exceptions.Timeout:
-        return JsonResponse({'error': 'Groq zaman asimi. Tekrar dene.'}, status=504)
-    except requests.exceptions.HTTPError as e:
-        return JsonResponse({'error': f'Groq API hatasi: {str(e)}'}, status=502)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-# ── DAILY PRACTICE ──────────────────────────────────────────────────────────
-
-DAILY_TOPICS = [
-    {"en": "Describe your dream travel destination and why you want to go there.", "tr": "Hayalindeki seyahat destinasyonu"},
-    {"en": "Talk about a movie or TV show that changed your perspective on life.", "tr": "Hayatina bakisini degistiren bir film/dizi"},
-    {"en": "What are the advantages and disadvantages of social media?", "tr": "Sosyal medyanin artilari ve eksileri"},
-    {"en": "Describe a challenge you overcame and what you learned from it.", "tr": "Ustesinden geldigin bir zorluk"},
-    {"en": "If you could live in any era in history, which would you choose and why?", "tr": "Hangi tarihi donemde yasamak isterdin"},
-    {"en": "What does your ideal day look like from morning to night?", "tr": "Ideal bir gunun nasil gecer"},
-    {"en": "Talk about a book that influenced you and what made it special.", "tr": "Seni etkileyen bir kitap"},
-    {"en": "What technology do you think will change the world in the next 10 years?", "tr": "Dunyayi degistirecek teknoloji"},
-    {"en": "Describe your favourite food and how it is prepared.", "tr": "En sevdigin yemek ve yapilisi"},
-    {"en": "What are the pros and cons of living in a big city vs. a small town?", "tr": "Buyuk sehir mi, kucuk kasaba mi"},
-    {"en": "Talk about someone who has been a mentor or role model in your life.", "tr": "Hayatindaki bir mentor/rol model"},
-    {"en": "If you could have any superpower, what would it be and how would you use it?", "tr": "Super guc olsaydi"},
-    {"en": "Describe a tradition or celebration that is important to you or your culture.", "tr": "Onemli bir gelenek ya da kutlama"},
-    {"en": "What habits do you think are essential for a healthy and happy life?", "tr": "Saglikli ve mutlu bir yasam icin aliskanliklar"},
-    {"en": "Talk about your favourite hobby and how it started.", "tr": "En sevdigin hobi ve nasil basladi"},
-    {"en": "If you could meet any historical figure, who would it be and what would you ask?", "tr": "Hangi tarihi kisiyle tanisamak isterdin"},
-    {"en": "What do you think is the most important quality in a true friend?", "tr": "Gercek bir arkadasin en onemli ozelligi"},
-    {"en": "Talk about a skill you would love to master and why.", "tr": "Ustalasmak istedigin bir beceri"},
-    {"en": "Describe the place where you grew up and how it shaped who you are.", "tr": "Buyudugum yer ve seni nasil sekillendirdi"},
-    {"en": "What are your thoughts on climate change and what can individuals do about it?", "tr": "Iklim degisikligi ve bireysel cozumler"},
-    {"en": "Talk about your career goals and the steps you are taking to achieve them.", "tr": "Kariyer hedeflerin ve attigin adimlar"},
-    {"en": "If you won the lottery, how would you spend the money?", "tr": "Piyangoda buyuk ikramiye kazansaydin"},
-    {"en": "What do you think makes a great leader? Give an example.", "tr": "Buyuk bir lideri ne yapar"},
-    {"en": "Describe a moment when you felt truly proud of yourself.", "tr": "Kendinden gercekten gurur duydugum an"},
-    {"en": "Talk about the impact of artificial intelligence on everyday life.", "tr": "Yapay zekanin gunluk hayata etkisi"},
-    {"en": "What is your favourite season and what do you like to do during that time?", "tr": "En sevdigin mevsim ve aktiviteler"},
-    {"en": "If you could learn any language instantly, which would you choose and why?", "tr": "Aninda ogrenebilecegin bir dil olsaydi"},
-    {"en": "Talk about a time you had to make a difficult decision.", "tr": "Zor bir karar vermek zorunda kaldigin an"},
-    {"en": "What are the most important things you have learned from your parents?", "tr": "Ebeveynlerinden ogrendigin en onemli seyler"},
-    {"en": "Describe your perfect home — where it would be and what it would look like.", "tr": "Hayalindeki ev"},
-    {"en": "What role does music play in your life?", "tr": "Muzigin hayatindaki yeri"},
-    {"en": "Talk about a time you helped someone and how it made you feel.", "tr": "Birine yardim ettigin ve nasil hissettirdigi"},
-    {"en": "If you could change one thing about the world, what would it be?", "tr": "Dunyada bir seyi degistirebilseydin"},
-    {"en": "Describe a goal you are currently working towards.", "tr": "Su an uzerinde calistigin bir hedef"},
-    {"en": "What does success mean to you personally?", "tr": "Basari senin icin ne anlama gelir"},
-    {"en": "Talk about a sport or physical activity you enjoy.", "tr": "Keyif aldigin bir spor veya fiziksel aktivite"},
-    {"en": "If you could redesign your country's education system, what would you change?", "tr": "Egitim sistemini yeniden tasarlasaydin"},
-    {"en": "Describe a place you have visited that left a strong impression on you.", "tr": "Seni derinden etkileyen bir yer"},
-    {"en": "What are the benefits and risks of working from home?", "tr": "Evden calismanin avantaj ve dezavantajlari"},
-    {"en": "Talk about how technology has changed the way people communicate.", "tr": "Teknoloji iletisimi nasil degistirdi"},
-]
-
-
-@login_required
-def daily_practice(request):
-    from datetime import date
-    today = date.today()
-    topic_index = (today.year * 366 + today.timetuple().tm_yday) % len(DAILY_TOPICS)
-    topic = DAILY_TOPICS[topic_index]
-    if request.method == 'GET':
-        request.session['daily_chat_history'] = []
-    return render(request, 'flashcards/daily_practice.html', {'topic': topic, 'all_topics': DAILY_TOPICS})
-
-
-@login_required
-def ai_chat_respond(request):
-    """AJAX — AI speaking partner, corrects mistakes inline."""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'POST required'}, status=405)
-    if not GROQ_API_KEY:
-        return JsonResponse({'error': 'GROQ_API_KEY ayarlanmamis.'}, status=500)
-
-    data = json.loads(request.body)
-    user_message = data.get('message', '').strip()
-    topic_en     = data.get('topic', '').strip()
-    if not user_message:
-        return JsonResponse({'error': 'Mesaj bos olamaz.'}, status=400)
-
-    history = request.session.get('daily_chat_history', [])
-
-    system_prompt = f"""You are a friendly, encouraging English conversation partner for a Turkish speaker preparing to move to Australia.
-Today's conversation topic: "{topic_en}"
-
-Rules:
-1. Reply naturally in English as a real conversation partner (2-4 sentences max).
-2. If the user makes a clear grammar mistake, add a correction at the END in this exact format:
-   CORRECTION: "[their mistake]" -> "[correct form]" | [brief Turkish explanation]
-3. If no mistake, do NOT add any correction line.
-4. Always end with a follow-up question to keep the conversation going.
-5. Never switch to Turkish in your main reply."""
-
-    payload = [{'role': 'system', 'content': system_prompt}]
-    for turn in history[-10:]:
-        payload.append({'role': turn['role'], 'content': turn['content']})
-    payload.append({'role': 'user', 'content': user_message})
-
-    try:
-        reply = call_groq(payload, max_tokens=250)
-        history.append({'role': 'user',      'content': user_message})
-        history.append({'role': 'assistant', 'content': reply})
-        request.session['daily_chat_history'] = history[-20:]
-        request.session.modified = True
-        return JsonResponse({'success': True, 'reply': reply})
-    except requests.exceptions.Timeout:
-        return JsonResponse({'error': 'Groq zaman asimi. Tekrar dene.'}, status=504)
-    except requests.exceptions.HTTPError as e:
-        return JsonResponse({'error': f'Groq API hatasi: {str(e)}'}, status=502)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-@login_required
-def ai_evaluate_writing(request):
-    """AJAX — Evaluate daily writing paragraph."""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'POST required'}, status=405)
-    if not GROQ_API_KEY:
-        return JsonResponse({'error': 'GROQ_API_KEY ayarlanmamis.'}, status=500)
-
-    data     = json.loads(request.body)
-    text     = data.get('text', '').strip()
-    topic_en = data.get('topic', '').strip()
-    if len(text) < 20:
-        return JsonResponse({'error': 'Lutfen daha uzun bir metin yaz (en az 20 karakter).'}, status=400)
-
-    system_prompt = """You are a professional English writing coach for a Turkish speaker.
-Evaluate the paragraph and respond ONLY in this exact JSON format (no markdown):
-{
-  "overall_score": <1-10>,
-  "grammar_score": <1-10>,
-  "vocabulary_score": <1-10>,
-  "fluency_score": <1-10>,
-  "summary": "<Turkish: 2-3 sentence overall summary>",
-  "strengths": ["<Turkish strength 1>", "<Turkish strength 2>"],
-  "improvements": [
-    {"original": "<exact phrase>", "corrected": "<corrected>", "explanation": "<Turkish why>"}
-  ],
-  "better_version": "<polished English rewrite keeping user's ideas>",
-  "vocabulary_suggestions": [
-    {"word": "<word used>", "alternatives": ["<better 1>", "<better 2>"], "tip": "<Turkish tip>"}
-  ],
-  "encouragement": "<Turkish: motivating closing message>"
-}"""
-
-    try:
-        raw     = call_groq([
-            {'role': 'system', 'content': system_prompt},
-            {'role': 'user',   'content': f'Topic: "{topic_en}"\n\nStudent paragraph:\n{text}'},
-        ], max_tokens=900)
-        cleaned = raw.replace('```json', '').replace('```', '').strip()
-        result  = json.loads(cleaned)
         return JsonResponse({'success': True, 'result': result})
     except json.JSONDecodeError:
         return JsonResponse({'error': 'AI yaniti parse edilemedi.', 'raw': raw}, status=500)
