@@ -24,4 +24,7 @@ urlpatterns = [
     path('daily/', views.daily_practice, name='daily_practice'),
     path('daily/chat/', views.ai_chat_respond, name='ai_chat_respond'),
     path('daily/writing/', views.ai_evaluate_writing, name='ai_evaluate_writing'),
+
+    path('level-test/', views.level_assessment, name='level_assessment'),
+    path('level-test/analyze/', views.ai_analyze_level, name='ai_analyze_level'),
 ]

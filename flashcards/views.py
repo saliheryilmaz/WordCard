@@ -554,6 +554,88 @@ Evaluate the submitted paragraph and respond ONLY in this exact JSON format (no 
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@login_required
+def level_assessment(request):
+    prompts = [
+        {
+            'title': 'Daily life',
+            'text': 'Describe your daily routine and explain one thing you would like to improve in your life.',
+        },
+        {
+            'title': 'Opinion',
+            'text': 'Do you think learning English online is effective? Explain your opinion with examples.',
+        },
+        {
+            'title': 'Past experience',
+            'text': 'Write about a difficult experience you had and what you learned from it.',
+        },
+    ]
+    return render(request, 'flashcards/level_assessment.html', {'prompts': prompts})
+
+
+@login_required
+def ai_analyze_level(request):
+    """AJAX - Estimate CEFR writing level between A1 and B2."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    if not GROQ_API_KEY:
+        return JsonResponse({'error': 'GROQ_API_KEY ayarlanmamis.'}, status=500)
+
+    data = json.loads(request.body)
+    text = data.get('text', '').strip()
+    prompt = data.get('prompt', '').strip()
+    word_count = len(text.split())
+
+    if len(text) < 120 or word_count < 25:
+        return JsonResponse({'error': 'Seviye tespiti icin en az 25 kelimelik bir metin yaz.'}, status=400)
+
+    system_prompt = """You are an expert CEFR English writing assessor for Turkish learners.
+Assess only levels A1, A2, B1, and B2. If the writing is above B2, still return B2.
+Be strict but encouraging. Base the level on grammar control, vocabulary range, sentence complexity, coherence, task achievement, and fluency.
+Respond ONLY in this exact JSON format, no markdown and no extra text:
+{
+  "level": "A1|A2|B1|B2",
+  "confidence": <integer 1-100>,
+  "overall_score": <integer 1-10>,
+  "grammar_score": <integer 1-10>,
+  "vocabulary_score": <integer 1-10>,
+  "coherence_score": <integer 1-10>,
+  "fluency_score": <integer 1-10>,
+  "summary_tr": "<Turkish: 2-3 sentences explaining the level decision>",
+  "evidence": ["<Turkish evidence 1>", "<Turkish evidence 2>", "<Turkish evidence 3>"],
+  "next_level_goals": ["<Turkish practical goal 1>", "<Turkish practical goal 2>", "<Turkish practical goal 3>"],
+  "priority_topics": ["grammar topic", "vocabulary topic", "writing topic"],
+  "corrected_sample": "<A corrected and slightly improved version of the student's text in English>",
+  "study_plan_tr": "<Turkish: short 7-day study plan to move toward the next CEFR level>"
+}"""
+
+    user_prompt = f"""Writing task: {prompt or 'Free writing'}
+Word count: {word_count}
+
+Student text:
+{text}"""
+
+    try:
+        raw = call_groq([
+            {'role': 'system', 'content': system_prompt},
+            {'role': 'user', 'content': user_prompt},
+        ], max_tokens=1100)
+        cleaned = raw.replace('```json', '').replace('```', '').strip()
+        result = json.loads(cleaned)
+        allowed_levels = {'A1', 'A2', 'B1', 'B2'}
+        if result.get('level') not in allowed_levels:
+            result['level'] = 'B2'
+        return JsonResponse({'success': True, 'result': result})
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'AI yaniti parse edilemedi.', 'raw': raw}, status=500)
+    except requests.exceptions.Timeout:
+        return JsonResponse({'error': 'Groq zaman asimi. Tekrar dene.'}, status=504)
+    except requests.exceptions.HTTPError as e:
+        return JsonResponse({'error': f'Groq API hatasi: {str(e)}'}, status=502)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
 # ── DAILY PRACTICE ──────────────────────────────────────────────────────────
 
 DAILY_TOPICS = [
