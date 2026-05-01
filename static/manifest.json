@@ -1,0 +1,16 @@
+{
+  "name": "WordCard",
+  "short_name": "WordCard",
+  "description": "Kelime öğrenme ve pratik yapma uygulaması",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0f14",
+  "theme_color": "#161920",
+  "icons": [
+    {
+      "src": "/static/favicon.ico",
+      "sizes": "64x64 128x128 192x192 256x256 512x512",
+      "type": "image/x-icon"
+    }
+  ]
+}
